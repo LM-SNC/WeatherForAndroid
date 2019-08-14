@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -48,6 +49,8 @@ public class GameScreen implements Screen {
     Vector2 nubesx;
     Texture background1;
     int Hscore;
+    Sound mario;
+    Sound mario1;
     PrintWriter scorewrite;
     ImageButton pause;
     boolean gamepause;
@@ -55,12 +58,15 @@ public class GameScreen implements Screen {
     Vector3 touchPos;
     ImageButton setting;
     ImageButton resumeButton;
+    float volumeSound = 0.5f;
     ImageButton exit_bn;
     //    Texture button2;
 //    Texture button3;
 //    Sprite button2S;
 //    Sprite button3S;
     Array<Float> speedsForNubes;
+    Array<Float> speedsForRic;
+    Array <Sound> musicMass;
     Array<Rectangle> raindrops;
     Array<Rectangle> nubesdrops;
     Texture exitButtonTexture;
@@ -101,10 +107,15 @@ public class GameScreen implements Screen {
         } catch (IOException error) {
             System.out.println("Error:" + error);
         }
-
+        musicMass = new Array();
+        mario = Gdx.audio.newSound(Gdx.files.internal("mario.mp3"));
+        mario1 = Gdx.audio.newSound(Gdx.files.internal("mario1.mp3"));
         mp3 = Gdx.audio.newMusic(Gdx.files.internal("mp3.mp3"));
         mp3.setLooping(true);
+        mp3.setVolume(volumeSound);
         mp3.play();
+        musicMass.add(mario1);
+        musicMass.add(mario);
         bucket = new Rectangle();
         bucket.x = 800 / 2 - 64 / 2;
         bucket.y = 20;
@@ -112,7 +123,9 @@ public class GameScreen implements Screen {
         bucket.height = 32;
 
         speedsForNubes = new Array<>();
+        speedsForRic = new Array<>();
         raindrops = new Array<Rectangle>();
+
         spawnRaindrop();
         nubesdrops = new Array<Rectangle>();
         spawnNubes();
@@ -130,7 +143,7 @@ public class GameScreen implements Screen {
         dropColleted = new Label("Drops Collected: " + dropsGatchered, skin);
         textProebano = new Label("Proebano: " + proebano + "/5", skin);
         hightScore = new Label("Hight score: " + Hscore, skin);
-        musicVolume = new Label("Music Volume: " , skin);
+        musicVolume = new Label("Music Volume: ", skin);
 
         Table firstTable = new Table();
         firstTable.setFillParent(true);
@@ -144,7 +157,6 @@ public class GameScreen implements Screen {
                 resumeButton.setVisible(true);
                 setting.setVisible(true);
                 exit_bn.setVisible(true);
-
             }
         });
         firstTable.add(dropColleted).align(Align.topLeft).row();
@@ -161,8 +173,8 @@ public class GameScreen implements Screen {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
                 Slider slider = (Slider) actor;
-                slider.getValue();
-                mp3.setVolume(slider.getValue());
+                mp3.setVolume(volumeSound);
+                volumeSound = slider.getValue();
             }
         });
 
@@ -178,6 +190,16 @@ public class GameScreen implements Screen {
                 setting.setVisible(false);
                 exit_bn.setVisible(false);
                 pause.setVisible(true);
+
+            }
+        });
+        final Slider slider1 = new Slider(0f, 1f, 0.01f, false, skin);
+        slider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                Slider slider1 = (Slider) actor;
+                mp3.setVolume(volumeSound);
+                volumeSound = slider1.getValue();
             }
         });
         musicVolume.setVisible(false);
@@ -192,6 +214,7 @@ public class GameScreen implements Screen {
                 resumeButton.setVisible(!swith);
                 setting.setVisible(swith || !swith);
                 slider.setVisible(swith);
+                slider1.setVisible(swith);
                 musicVolume.setVisible(swith);
                 exit_bn.setVisible(!swith);
                 pause.setVisible(false);
@@ -209,10 +232,12 @@ public class GameScreen implements Screen {
                 dispose();
             }
         });
+        slider1.setVisible(false);
         pauseTable.add(resumeButton).row();
         pauseTable.add(musicVolume).row();
         pauseTable.add(slider).row();
-        pauseTable.add(setting).padBottom(40).row();
+        pauseTable.add(setting).row();
+        pauseTable.add(slider1).row();
         pauseTable.add(exit_bn).padBottom(2);
 
 //        Container<Slider> container = new Container<Slider>(slider);
@@ -221,7 +246,7 @@ public class GameScreen implements Screen {
 //        container.setOrigin(container.getWidth() / 2, container.getHeight() / 2);
 //        container.setPosition(200, 400);
 //        container.setScale(1);  //scale according to your requirement
-
+        slider.setValue(volumeSound);
         stage.addActor(pauseTable);
     }
 
@@ -233,6 +258,7 @@ public class GameScreen implements Screen {
             raindrop.y = 480;
             raindrop.width = 64;
             raindrop.height = 64;
+            speedsForRic.add(MathUtils.random(150f * Gdx.graphics.getDeltaTime(), 200f * Gdx.graphics.getDeltaTime()));
             raindrops.add(raindrop);
             lastDropTime = TimeUtils.nanoTime();
         }
@@ -261,6 +287,13 @@ public class GameScreen implements Screen {
 //        Gdx.app.log("GameScreen::render()", "delta:" + delta);
         Gdx.gl.glClearColor(0, 0, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        if (!gamepause) {
+            for (int k = 0; k < raindrops.size; k++) {
+                Rectangle raindrop = raindrops.get(k);
+                float speed = speedsForRic.get(k);
+                raindrop.y -= speed;
+            }
+        }
 
         if (!gamepause) {
             for (int k = 0; k < nubesdrops.size; k++) {
@@ -346,13 +379,16 @@ public class GameScreen implements Screen {
         if (!gamepause) {
             while (iter.hasNext()) {
                 Rectangle raindrop = iter.next();
-                raindrop.y -= 200 * Gdx.graphics.getDeltaTime();
+
                 if (raindrop.y + 64 < 0) {
                     proebano++;
                     iter.remove();
                 }
                 if (raindrop.overlaps(bucket)) {
                     if (gameOver == false) {
+                        ((Sound)musicMass.random()).play();
+//                        mario.play(1.0f);
+//                        mario1.play();
                         dropsGatchered++;
                     }
                     iter.remove();
