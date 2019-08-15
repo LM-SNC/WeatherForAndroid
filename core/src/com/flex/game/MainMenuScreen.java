@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -32,9 +34,11 @@ public class MainMenuScreen implements Screen {
     Image startBtnImg;
     Image ric;
     BufferedReader buff;
-    Texture gold;
+    ImageButton gold;
     Image backGroundTexture;
+    Label coin;
     Stage stage;
+    ImageButton storeButton;
     Skin skin;
 
     String line;
@@ -56,19 +60,9 @@ public class MainMenuScreen implements Screen {
         // этим методом мы центруем камеру на половину высоты и половину ширины
         camera.setToOrtho(false);// временный вектор для "захвата" входных координат
         batch = new SpriteBatch();
-        gold = new Texture(Gdx.files.internal("gold.png"));
         // инициализируем текстуры и спрайты
-        try {
-            buff = new BufferedReader(new FileReader("score.txt"));
-            while ((line = buff.readLine()) != null) {
-                Hscore = Integer.parseInt(line);
-            }
-            buff.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+
         // exitButtonSprite = new Sprite(exitButtonTexture);
         // устанавливаем размер и позиции
         //exitButtonSprite.setSize(exitButtonSprite.getWidth() *(width/BUTTON_RESIZE_FACTOR), exitButtonSprite.getHeight()*(width/BUTTON_RESIZE_FACTOR));
@@ -80,11 +74,30 @@ public class MainMenuScreen implements Screen {
         Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
         Table firstTable = new Table();
         firstTable.setFillParent(true);
+        Table secondTable = new Table();
+        secondTable.setFillParent(true);
         backGroundTexture = new Image(new TextureRegionDrawable(new TextureRegion(new Texture("menubackground.jpg"))));
         backGroundTexture.setFillParent(true);
         stage.addActor(backGroundTexture);
+        storeButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("storeButton.png"))));
+        gold = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("gold.png"))));
+
+
+
+        storeButton.addListener(new ClickListener() {
+
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.log("MainMenuScreen:clicked;MainMenuScreen()", "clicked");
+                super.clicked(event, x, y);
+                game.setScreen(new Shop(game));
+                dispose();
+            }
+        });
+
         startBtnImg = new Image(new TextureRegionDrawable(new TextureRegion(new Texture("start_button.png"))));
         startBtnImg.addListener(new ClickListener() {
+
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("MainMenuScreen:clicked;MainMenuScreen()", "clicked");
@@ -93,11 +106,16 @@ public class MainMenuScreen implements Screen {
                 dispose();
             }
     });
-        firstTable.add(startBtnImg).expandY().align(Align.bottomLeft).padLeft(30).padRight(40);
+        coin = new Label("Coins: ", skin);
+        firstTable.add(gold).align(Align.topLeft).row();
+        secondTable.add(coin).align(Align.topLeft).padLeft(120);
+        firstTable.add(storeButton).expand().align(Align.bottomLeft).row();
+        firstTable.add(startBtnImg).align(Align.bottomLeft).padTop(10);//.padLeft(30).padRight(40);
         ric = new Image(new TextureRegionDrawable(new TextureRegion(new Texture("ric.png"))));
-        firstTable.add(ric).expand().align(Align.bottomLeft);
+        secondTable.add(ric).expand().align(Align.bottomRight);
 
         stage.addActor(firstTable);
+        stage.addActor(secondTable);
     }
 
     @Override
@@ -117,9 +135,8 @@ public class MainMenuScreen implements Screen {
         game.batch.begin();
         stage.act();
         stage.draw();
+        coin.setText("Coin: ");
 
-        game.font.draw(game.batch, " High score: " + Hscore, 0, 445);
-        game.batch.draw(gold, 1, 480 - 32, 32, 32);
         game.batch.end();
     }
 
