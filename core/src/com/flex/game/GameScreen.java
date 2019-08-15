@@ -69,6 +69,7 @@ public class GameScreen implements Screen {
     ImageButton exit_bn;
     Array<Float> speedsForNubes;
     Array<Float> speedsForRic;
+    Array<Float> speedsForCoin;
     Array<Sound> musicMass;
     Array<Rectangle> raindrops;
     Array<Rectangle> coiondrops;
@@ -110,13 +111,7 @@ public class GameScreen implements Screen {
         score();
         scoreWrite();
 
-        coinTXT = Gdx.files.local("coin.txt");
-        if (!coinTXT.exists()) {
-            coinTXT.writeString("0", false);
-        }
 
-        scoreCoin();
-        scoreWriteCoin();
 
         musicMass = new Array();
         mario = Gdx.audio.newSound(Gdx.files.internal("mario.mp3"));
@@ -135,6 +130,7 @@ public class GameScreen implements Screen {
 
         speedsForNubes = new Array<>();
         speedsForRic = new Array<>();
+        speedsForCoin = new Array<>();
         coiondrops = new Array<Rectangle>();
         raindrops = new Array<Rectangle>();
         nubesdrops = new Array<Rectangle>();
@@ -263,13 +259,10 @@ public class GameScreen implements Screen {
             raindrop.y = 480;
             raindrop.width = 64;
             raindrop.height = 64;
-            speedsForRic.add(MathUtils.random(150f * Gdx.graphics.getDeltaTime(), 200f * Gdx.graphics.getDeltaTime()));
+            speedsForRic.add(MathUtils.random(150 * Gdx.graphics.getDeltaTime(), 200f * Gdx.graphics.getDeltaTime()));
             raindrops.add(raindrop);
 
-            MathUtils.random(4000, 7000);
-            //  if ((dropsGatchered % 10) == 0 && dropsGatchered != 0){
-            //     spawnCoindrop();
-            // }
+
 
         }
     }
@@ -282,7 +275,7 @@ public class GameScreen implements Screen {
             coindrop.y = 480;
             coindrop.width = 64;
             coindrop.height = 64;
-            speedsForRic.add(MathUtils.random(150f * Gdx.graphics.getDeltaTime(), 200f * Gdx.graphics.getDeltaTime()));
+            speedsForCoin.add(MathUtils.random(150f * Gdx.graphics.getDeltaTime(), 200f * Gdx.graphics.getDeltaTime()));
             coiondrops.add(coindrop);
 
         }
@@ -325,18 +318,10 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (!gamepause) {
-            for (int k = 0; k < raindrops.size; k++) {
-                Rectangle raindrop = raindrops.get(k);
-                float speed = speedsForRic.get(k);
-                raindrop.y -= speed;
-            }
+
         }
         if (!gamepause) {
-            for (int k = 0; k < coiondrops.size; k++) {
-                Rectangle coindrop = coiondrops.get(k);
-                float speed = speedsForRic.get(k);
-                coindrop.y -= speed;
-            }
+
         }
         h1 = MathUtils.random(10000, 20000);
         h2 = MathUtils.random(10000, 20000);
@@ -420,15 +405,30 @@ public class GameScreen implements Screen {
         if (bucket.x > 800 - 64) {
             bucket.x = 800 - 64;
         }
-
+        if (!gamepause) {
+            for (int k = 0; k < raindrops.size; k++) {
+                Rectangle raindrop = raindrops.get(k);
+                float speed = speedsForRic.get(k);
+                raindrop.y -= speed;
+            }
+            for (int k = 0; k < coiondrops.size; k++) {
+                Rectangle coindrop = coiondrops.get(k);
+                float speed = speedsForCoin.get(k);
+                coindrop.y -= speed;
+            }
+        }
         Iterator<Rectangle> iter = raindrops.iterator();
+        Iterator<Float> iter2 = speedsForRic.iterator();
         if (!gamepause) {
             while (iter.hasNext()) {
                 Rectangle raindrop = iter.next();
+                Float speedForRic = iter2.next();
+
 
                 if (raindrop.y + 64 < 0) {
                     proebano++;
                     iter.remove();
+                    iter2.remove();
                 }
                 if (raindrop.overlaps(bucket)) {
                     if (gameOver == false) {
@@ -437,13 +437,12 @@ public class GameScreen implements Screen {
 //                        mario1.play();
                         dropsGatchered++;
                         if (dropsGatchered > Hscore) {
-
-                            score();
                             scoreWrite();
-
+                            score();
                         }
                     }
                     iter.remove();
+                    iter2.remove();
                 }
             }
         }
@@ -460,8 +459,7 @@ public class GameScreen implements Screen {
 //                        mario.play(1.0f);
 //                        mario1.play();
                         coin++;
-//                        scoreCoin();
-                        scoreWriteCoin();
+                        scoreWrite();
                     }
                     iterCoin.remove();
                 }
@@ -493,7 +491,14 @@ public class GameScreen implements Screen {
 
     public void score() {
         Gdx.app.log("GameScreen::score()", "--");
-        Hscore = Integer.parseInt(score.readString());
+        String line = score.readString();
+        String lines[] = line.split("\n");
+        if (lines.length == 2) {
+            Hscore = Integer.parseInt(lines[0]);
+            coin = Integer.parseInt(lines[1]);
+        } else {
+            Gdx.app.log("GameScreen::score()", "lines:" + lines);
+        }
     }
 
     public void scoreWrite() {
@@ -501,19 +506,12 @@ public class GameScreen implements Screen {
         if (dropsGatchered > Hscore) {
             Hscore = dropsGatchered;
         }
+        Gdx.app.log("GameScreen::score()", "Hscore:" + Hscore);
+        Gdx.app.log("GameScreen::score()", "coin:" + coin);
         score.writeString(String.valueOf(Hscore), false);
+        score.writeString("\n" + coin,true);
     }
 
-    public void scoreCoin() {
-        Gdx.app.log("GameScreen::coin()", "--");
-        coin = Integer.parseInt(coinTXT.readString());
-    }
-
-    public void scoreWriteCoin() {
-        Gdx.app.log("GameScreen::coinWrite()", "--");
-
-        coinTXT.writeString(String.valueOf(coin), false);
-    }
 
     @Override
     public void pause() {
