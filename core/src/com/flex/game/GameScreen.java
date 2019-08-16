@@ -22,11 +22,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,7 +44,7 @@ import java.io.BufferedReader;
 
 public class GameScreen implements Screen {
     private float timeSecondsCoin = 0f;
-    private float periodCoin = 2f;
+    private float periodCoin = 20f;
     private float timeSecondsRicardo = 0f;
     private float periodRicardo = 1f;
 
@@ -50,8 +58,9 @@ public class GameScreen implements Screen {
     Texture bucketImage;
     Rectangle bucket;
     FileHandle score;
-    FileHandle coinTXT;
+    FileHandle settingTXT;
     Vector2 nubesx;
+
     Texture background1;
     int h1;
     int h2;
@@ -88,6 +97,8 @@ public class GameScreen implements Screen {
     Stage stage;
     int dropsGatchered;
     Texture nubesImg;
+    float height = Gdx.graphics.getHeight();
+    float width = Gdx.graphics.getHeight();
 
     public GameScreen(final Drop gam) {
         Gdx.app.log("GameScreen::GameScreen()", "gam:" + gam);
@@ -107,10 +118,13 @@ public class GameScreen implements Screen {
         if (!score.exists()) {
             score.writeString("0", false);
         }
-
+        settingTXT = Gdx.files.local("setting.txt");
+        if (!settingTXT.exists()) {
+            settingTXT.writeString("0", false);
+        }
+        settingRead();
         score();
         scoreWrite();
-
 
 
         musicMass = new Array();
@@ -135,8 +149,8 @@ public class GameScreen implements Screen {
         raindrops = new Array<Rectangle>();
         nubesdrops = new Array<Rectangle>();
 
-        stage = new Stage();
-        //stage.setDebugAll(true);
+        stage = new Stage(new ExtendViewport(width,height));
+        stage.setDebugAll(true);
         Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
         dropColleted = new Label("Drops Collected: " + dropsGatchered, skin);
         textProebano = new Label("Proebano: " + proebano + "/5", skin);
@@ -175,11 +189,13 @@ public class GameScreen implements Screen {
                 Slider slider = (Slider) actor;
                 mp3.setVolume(volumeSound);
                 volumeSound = slider.getValue();
+                settingWrite();
             }
         });
 
 
         resumeButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("resume.png"))));
+        //  resumeButton = new TextButton("RESUME", skin);
         resumeButton.setVisible(false);
         resumeButton.addListener(new ClickListener() {
             @Override
@@ -214,7 +230,7 @@ public class GameScreen implements Screen {
                 resumeButton.setVisible(!swith);
                 setting.setVisible(swith || !swith);
                 slider.setVisible(swith);
-                slider1.setVisible(swith);
+                //  slider1.setVisible(swith);
                 musicVolume.setVisible(swith);
                 exit_bn.setVisible(!swith);
                 pause.setVisible(false);
@@ -233,10 +249,12 @@ public class GameScreen implements Screen {
             }
         });
         slider1.setVisible(false);
-        pauseTable.add(resumeButton).row();
+        //resumeButton.getImage().getDrawable().setHeight(Gdx.graphics.getHeight()/2);
+        resumeButton.setHeight(1);
+        pauseTable.add(resumeButton).prefHeight(1).row();
         pauseTable.add(musicVolume).row();
         pauseTable.add(slider).row();
-        pauseTable.add(setting).row();
+        pauseTable.add(setting).padBottom(40).row();
         pauseTable.add(slider1).row();
         pauseTable.add(exit_bn).padBottom(2);
 
@@ -261,7 +279,6 @@ public class GameScreen implements Screen {
             raindrop.height = 64;
             speedsForRic.add(MathUtils.random(150 * Gdx.graphics.getDeltaTime(), 200f * Gdx.graphics.getDeltaTime()));
             raindrops.add(raindrop);
-
 
 
         }
@@ -435,7 +452,7 @@ public class GameScreen implements Screen {
                         ((Sound) musicMass.random()).play();
 //                        mario.play(1.0f);
 //                        mario1.play();
-                        dropsGatchered++;
+                        dropsGatchered++; // TODO ХУЙНЯ 1
                         if (dropsGatchered > Hscore) {
                             scoreWrite();
                             score();
@@ -465,7 +482,7 @@ public class GameScreen implements Screen {
                 }
             }
         }
-        if (proebano == 5) {
+        if (proebano == 5) { // TODO ХУЙНЯ 2
             gameOver = true;
         }
         if (proebano > 5) {
@@ -479,6 +496,7 @@ public class GameScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         Gdx.app.log("GameScreen::resize()", "width:" + width + " height:" + height);
+        stage.getViewport().update(width,height);
     }
 
     public void restart() {
@@ -509,7 +527,21 @@ public class GameScreen implements Screen {
         Gdx.app.log("GameScreen::score()", "Hscore:" + Hscore);
         Gdx.app.log("GameScreen::score()", "coin:" + coin);
         score.writeString(String.valueOf(Hscore), false);
-        score.writeString("\n" + coin,true);
+        score.writeString("\n" + coin, true);
+    }
+
+    public void settingRead() {
+
+        volumeSound = Float.parseFloat(settingTXT.readString());
+
+
+    }
+
+    public void settingWrite() {
+
+
+        settingTXT.writeString(String.valueOf(volumeSound), false);
+        // score.writeString("\n" + coin, true);
     }
 
 

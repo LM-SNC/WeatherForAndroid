@@ -2,6 +2,7 @@ package com.flex.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -32,17 +33,20 @@ public class MainMenuScreen implements Screen {
     SpriteBatch batch;
     OrthographicCamera camera;
     Image startBtnImg;
+    FileHandle score;
     Image ric;
     BufferedReader buff;
     ImageButton gold;
     Image backGroundTexture;
     Label coin;
+    Label Hscorelabel;
     Stage stage;
     ImageButton storeButton;
     Skin skin;
 
     String line;
     int Hscore;
+    int CoinInt;
     Sprite backGroundSprite;
 
     public MainMenuScreen(final Drop gam) {
@@ -91,24 +95,26 @@ public class MainMenuScreen implements Screen {
                 Gdx.app.log("MainMenuScreen:clicked;MainMenuScreen()", "clicked");
                 super.clicked(event, x, y);
                 game.setScreen(new Shop(game));
-                dispose();
+
             }
         });
 
         startBtnImg = new Image(new TextureRegionDrawable(new TextureRegion(new Texture("start_button.png"))));
         startBtnImg.addListener(new ClickListener() {
 
-            @Override
+           @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("MainMenuScreen:clicked;MainMenuScreen()", "clicked");
                 super.clicked(event, x, y);
                 game.setScreen(new GameScreen(game));
                 dispose();
             }
-    });
-        coin = new Label("Coins: ", skin);
+   });
+        coin = new Label("Coins: " + CoinInt, skin);
+        Hscorelabel = new Label("Hight Score: " + Hscore, skin);
         firstTable.add(gold).align(Align.topLeft).row();
-        secondTable.add(coin).align(Align.topLeft).padLeft(120);
+        secondTable.add(coin).align(Align.topLeft).padLeft(120).row();
+        secondTable.add(Hscorelabel).align(Align.topLeft).padLeft(120);
         firstTable.add(storeButton).expand().align(Align.bottomLeft).row();
         firstTable.add(startBtnImg).align(Align.bottomLeft).padTop(10);//.padLeft(30).padRight(40);
         ric = new Image(new TextureRegionDrawable(new TextureRegion(new Texture("ric.png"))));
@@ -116,6 +122,12 @@ public class MainMenuScreen implements Screen {
 
         stage.addActor(firstTable);
         stage.addActor(secondTable);
+
+        score = Gdx.files.local("score.txt");
+        if (!score.exists()) {
+            score.writeString("0", false);
+        }
+        score();
     }
 
     @Override
@@ -135,7 +147,8 @@ public class MainMenuScreen implements Screen {
         game.batch.begin();
         stage.act();
         stage.draw();
-        coin.setText("Coin: ");
+        coin.setText("Coin: " + CoinInt);
+        Hscorelabel.setText("Hight Score: " + Hscore);
 
         game.batch.end();
     }
@@ -165,4 +178,16 @@ public class MainMenuScreen implements Screen {
     public void dispose() {
         Gdx.app.log("MainMenuScreen::dispose()", "--");
     }
-}
+
+
+    public void score() {
+        Gdx.app.log("GameScreen::score()", "--");
+        String line = score.readString();
+        String lines[] = line.split("\n");
+        if (lines.length == 2) {
+            Hscore = Integer.parseInt(lines[0]);
+            CoinInt = Integer.parseInt(lines[1]);
+        } else {
+            Gdx.app.log("GameScreen::score()", "lines:" + lines);
+        }
+    }}
