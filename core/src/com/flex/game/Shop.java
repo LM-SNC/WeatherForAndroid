@@ -33,6 +33,7 @@ public class Shop implements Screen {
     Label coinLabel;
     FileHandle score;
     ImageButton exitstore;
+    ImageButton back1;
     ImageButton skins;
     ImageButton back;
     Batch batch;
@@ -43,12 +44,13 @@ public class Shop implements Screen {
 
 
     Shop(final Drop gam) {
-        float height = Gdx.graphics.getHeight();
-        float width = Gdx.graphics.getWidth();
+        final float height = Gdx.graphics.getHeight();
+        final float width = Gdx.graphics.getWidth();
         final Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
         batch = new SpriteBatch();
         stage = new Stage(new ExtendViewport(width, height));
         this.game = gam;
+
 
         Table firstTable = new Table();
         firstTable.setFillParent(true);
@@ -56,7 +58,10 @@ public class Shop implements Screen {
         secondTable.setFillParent(true);
         Table thirdTable = new Table();
         thirdTable.setFillParent(true);
+        Table backForTableBYART = new Table();
+        backForTableBYART.setFillParent(true);
         coinLabel = new Label("Coin: " + coin,skin);
+        back1 = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("back1.png"))));
         backGround = new Image(new TextureRegionDrawable(new TextureRegion(new Texture("bstore.jpg"))));
         skins = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("skins.png"))));
         sound = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("sound.png"))));
@@ -64,7 +69,7 @@ public class Shop implements Screen {
         aby = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("aby.png"))));
         cnbutton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("cnbutton.png"))));
         back = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("back.png"))));
-        stage.setDebugAll(true);
+        //stage.setDebugAll(true);
         backGround.setFillParent(true);
         stage.addActor(backGround);
        secondTable.add(coinLabel).expand().align(Align.topLeft).row();
@@ -87,7 +92,13 @@ public class Shop implements Screen {
                     cnbutton.setVisible(!swithSkins);
                     exitstore.setVisible(!swithSkins);
                     skins.setVisible(!swithSkins);
+                if (height > 480 && width > 800) {
                     back.setVisible(swithSkins);
+                    back1.setVisible(false);
+                }
+                else {
+                    back1.setVisible(swithSkins);
+                }
                     slidingTable.setVisible(swithSkins);
 
 
@@ -110,7 +121,13 @@ public class Shop implements Screen {
                 cnbutton.setVisible(!swithSkins);
                 exitstore.setVisible(!swithSkins);
                 skins.setVisible(!swithSkins);
-                back.setVisible(swithSkins);
+                if (height > 480 && width > 800) {
+                    back.setVisible(swithSkins);
+                    back1.setVisible(false);
+                }
+                else {
+                    back1.setVisible(swithSkins);
+                }
 
 
             }
@@ -133,7 +150,13 @@ public class Shop implements Screen {
                 cnbutton.setVisible(!swithSkins);
                 exitstore.setVisible(!swithSkins);
                 skins.setVisible(!swithSkins);
-                back.setVisible(swithSkins);
+                if (height > 480 && width > 800) {
+                    back.setVisible(swithSkins);
+                    back1.setVisible(false);
+                }
+                else {
+                    back1.setVisible(swithSkins);
+                }
 
 
             }
@@ -155,7 +178,13 @@ public class Shop implements Screen {
                 cnbutton.setVisible(!swithSkins);
                 exitstore.setVisible(!swithSkins);
                 skins.setVisible(!swithSkins);
-                back.setVisible(swithSkins);
+                if (height > 480 && width > 800) {
+                    back.setVisible(swithSkins);
+                    back1.setVisible(false);
+                }
+                else {
+                    back1.setVisible(swithSkins);
+                }
 
 
             }
@@ -168,15 +197,13 @@ public class Shop implements Screen {
         stage.addActor(firstTable);
         stage.addActor(secondTable);
         stage.addActor(thirdTable);
+        stage.addActor(backForTableBYART);
 //        back.getImage().setSize(50, 100);
         secondTable.add(exitstore).expand().align(Align.bottom);
-//        thirdTable.add(back).expand().align(Align.bottomRight);
-        back.align(Align.bottomRight);
-        Table tableForBack = new Table();
-        back.getImage().scaleBy(0.001f);
+        thirdTable.add(back).expand().align(Align.bottomRight);
+        backForTableBYART.add(back1).expand().align(Align.bottomRight);
+       back1.setVisible(false);
 //        back.align(Align.right);
-        tableForBack.add(back);
-        thirdTable.add(tableForBack);
         back.setVisible(false);
         back.addListener(new ClickListener() {
             @Override
@@ -192,6 +219,25 @@ public class Shop implements Screen {
                     cnbutton.setVisible(swith);
                     exitstore.setVisible(swith);
                     slidingTable.setVisible(!swith);
+
+
+            }
+
+        });
+        back1.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                boolean swith;
+                swith = true;
+                back1.setVisible(swith);
+                back1.setVisible(!swith);
+                aby.setVisible(swith);
+                sound.setVisible(swith);
+                skins.setVisible(swith);
+                cnbutton.setVisible(swith);
+                exitstore.setVisible(swith);
+                slidingTable.setVisible(!swith);
 
 
             }
