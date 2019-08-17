@@ -4,11 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 
 public class SlidingTable extends Table implements GestureDetector.GestureListener {
@@ -36,6 +40,7 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
 //    private Actor touchFocusedChild;
 //    private ActorGestureListener actorGestureListener;
     private Array<Image> helpImages;
+    private Array<ImageButton> imageButton;
 
     private int LINE_MENU_ITEM_COUNT = 6;
 
@@ -53,6 +58,21 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
             }
         }
 
+        imageButton = new Array<ImageButton>();
+        FileHandle imagesButtonDir = Gdx.files.internal("button");
+        FileHandle[] fileButtonHandles = imagesButtonDir.list();
+        for (FileHandle fileHandle1 : fileButtonHandles) {
+            if (fileHandle1.extension().equals("png")) {
+                ImageButton imagebutton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(fileHandle1))));
+//                image.setFillParent(true);
+                imageButton.add(imagebutton);
+            }
+        }
+
+
+
+
+
         naviPassive = new Texture(Gdx.files.internal("naviPassive.png"));
         naviActive  = new Texture(Gdx.files.internal("naviActive.png"));
 
@@ -62,6 +82,13 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
             sectionTable.add(image).center().expand();
             addActor(sectionTable);
         }
+        for(int section = 0; section < imageButton.size; section++) {
+            ImageButton imagebutton = imageButton.get(section);
+            Table sectionTable = new Table();
+            sectionTable.add(imagebutton).center().expand();
+            addActor(sectionTable);
+        }
+
     }
     boolean huinua = false;
     @Override
@@ -94,7 +121,6 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
         Gdx.app.log("SlidingTable::fling()", "-- velocityX:" + velocityX + " velocityY:" + velocityY);
-        float border = Gdx.graphics.getHeight()/3;
         if (huinua == true) {
             if (Math.abs(velocityX) > flingSpeed) {
                 if (velocityX > 0) {

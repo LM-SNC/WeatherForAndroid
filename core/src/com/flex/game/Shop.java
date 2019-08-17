@@ -34,7 +34,9 @@ public class Shop implements Screen {
     FileHandle score;
     ImageButton exitstore;
     ImageButton back1;
+    Image verh;
     ImageButton skins;
+    Image guba;
     ImageButton back;
     Batch batch;
     Skin skin;
@@ -56,10 +58,17 @@ public class Shop implements Screen {
         firstTable.setFillParent(true);
         final Table secondTable = new Table();
         secondTable.setFillParent(true);
+        Table TableForGuba = new Table();
+        TableForGuba.setFillParent(true);
         Table thirdTable = new Table();
         thirdTable.setFillParent(true);
-        Table backForTableBYART = new Table();
-        backForTableBYART.setFillParent(true);
+        Table forBck1 = new Table();
+        forBck1.setFillParent(true);
+        Table forVerh = new Table();
+        forVerh.setFillParent(true);
+
+
+
         coinLabel = new Label("Coin: " + coin,skin);
         back1 = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("back1.png"))));
         backGround = new Image(new TextureRegionDrawable(new TextureRegion(new Texture("bstore.jpg"))));
@@ -69,6 +78,9 @@ public class Shop implements Screen {
         aby = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("aby.png"))));
         cnbutton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("cnbutton.png"))));
         back = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("back.png"))));
+        verh = new Image(new Texture("verh.png"));
+        guba = new Image(new Texture("guba.png"));
+
         //stage.setDebugAll(true);
         backGround.setFillParent(true);
         stage.addActor(backGround);
@@ -98,6 +110,8 @@ public class Shop implements Screen {
                 }
                 else {
                     back1.setVisible(swithSkins);
+                    guba.setVisible(swithSkins);
+                    verh.setVisible(swithSkins);
                 }
                     slidingTable.setVisible(swithSkins);
 
@@ -196,12 +210,18 @@ public class Shop implements Screen {
 
         stage.addActor(firstTable);
         stage.addActor(secondTable);
+        stage.addActor(TableForGuba);
+        stage.addActor(forVerh);
+        stage.addActor(forBck1);
         stage.addActor(thirdTable);
-        stage.addActor(backForTableBYART);
 //        back.getImage().setSize(50, 100);
         secondTable.add(exitstore).expand().align(Align.bottom);
+        TableForGuba.add(guba).expand().align(Align.bottom);
+        forVerh.add(verh).expand().align(Align.top);
         thirdTable.add(back).expand().align(Align.bottomRight);
-        backForTableBYART.add(back1).expand().align(Align.bottomRight);
+        forBck1.add(back1).expand().align(Align.bottomRight);
+        guba.setVisible(false);
+        verh.setVisible(false);
        back1.setVisible(false);
 //        back.align(Align.right);
         back.setVisible(false);
@@ -238,6 +258,8 @@ public class Shop implements Screen {
                 cnbutton.setVisible(swith);
                 exitstore.setVisible(swith);
                 slidingTable.setVisible(!swith);
+                guba.setVisible(!swith);
+                verh.setVisible(!swith);
 
 
             }
