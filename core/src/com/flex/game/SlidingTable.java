@@ -37,14 +37,9 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
     // Направление движения секций
     private int transmission   = 0;
     private float stopSection  = 0;
-    boolean skin1;
-    boolean skin2;
-    boolean skin3;
-    boolean skin4;
+    public Array<Integer> skinsBuyActivOrNot;
     FileHandle score;
     int coin;
-    boolean skin5;
-    boolean skin6;
     FileHandle skinsSetting;
     private float speed        = 2500;
     SpriteBatch batch;
@@ -67,9 +62,9 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
 
     public SlidingTable(Skin skin) {
         Gdx.app.log("SlidingTable::SlidingTable()", "-- ");
-        stage = new Stage();
         skinsSetting = Gdx.files.local("skinsSetting.txt");
         score = Gdx.files.local("score.txt");
+        skinsBuyActivOrNot = new Array<>();
         helpImages = new Array<Image>();
         FileHandle imagesDir = Gdx.files.internal("hui");
         FileHandle[] fileHandles = imagesDir.list();
@@ -78,7 +73,6 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
                 Image image = new Image(new Texture(fileHandle));
 //                image.setFillParent(true);
                 helpImages.add(image);
-
             }
         }
 
@@ -87,8 +81,9 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
 
         for(int section = 0; section < helpImages.size; section++) {
             Table sectionTable = new Table();
-            Image image = helpImages.get(section);
+            sectionTable.setUserObject(section);
 
+            final Image image = helpImages.get(section);
             sectionTable.add(image).padRight(30);
             if(section == 0){
                 Label labelziro = new Label("Text", skin);
@@ -114,80 +109,118 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
                 Label labelziro = new Label("Text", skin);
                 sectionTable.add(labelziro).padLeft(30).row();
             }
-            final ImageButton imagebutton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("button/button.png"))));
-            imagebutton.setUserObject(section);
-            imagebutton.addListener(new ClickListener() {
+
+            Stack stack = new Stack();
+
+            ImageButton imageButton1 = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("button/button.png"))));
+//            imageButton1.setVisible(skinsBuyActivOrNot.get(section)==0);
+            imageButton1.setUserObject("buy");
+            imageButton1.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     super.clicked(event, x, y);
-                    int section = (int)event.getListenerActor().getUserObject();
-                    skinRead();
-                    if(section == 0){
+                    ImageButton imageButton1 = (ImageButton)event.getListenerActor();
+                    Stack stack = (Stack)imageButton1.getParent();
+                    int section = (int)stack.getParent().getUserObject();
+                    ImageButton imageButton2 = (ImageButton)stack.getChild(1);
+                    ImageButton imageButton3 = (ImageButton)stack.getChild(2);
+                    Gdx.app.log("SlidingTable)", "--imageButton2:" + imageButton2);
+                    Gdx.app.log("SlidingTable)", "--imageButton3:" + imageButton3);
+                    imageButton1.setVisible(false);
+                    imageButton2.setVisible(true);
 
-                        if(skin1){
-                            System.out.print("Скин уже приобретен!");
-                            score();
-                            System.out.print(coin);
-                            imagebutton.setVisible(false);
-                        }else {
-                            skin1 = true;
-                            skinWrite();
-                        }
-                    }
-                    else if(section == 1){
-                        if(skin2){
-                            System.out.print("Скин уже приобретен!");
-                        }
-                        else {
-                            skin2 = true;
-                        }
-
-                    }
-                    else if(section == 2){
-
-
-                    }
-                    else if(section == 3){
-
-
-                    }
-                    else if(section == 4){
-
-
-                    }
-                    else if (section == 5){
-
-                        System.out.print("Дима гей");
-                    }
-
-
-
-                    Gdx.app.log("SlidingTable)", "--tigey:" + section);
-
+//                    skinRead();
+//                    if (section == 0) {
+//                        if (skinsBuyActivOrNot.get(section) == 0) {
+//                            System.out.print("Скин уже приобретен!");
+//                            score();
+//                            System.out.print(coin);
+//                            imageButton1.setVisible(false);
+//                        } else {
+//                            skin1 = true;
+//                            skinWrite();
+//                        }
+//                    } else if (section == 1) {
+//                        if(skin2) {
+//                            System.out.print("Скин уже приобретен!");
+//                        } else {
+//                            skin2 = true;
+//                        }
+//                    } else if (section == 2) {
+//                    } else if (section == 3) {
+//                    } else if (section == 4) {
+//                    } else if (section == 5) {
+//                        System.out.print("Дима гей");
+//                    }
+//                    Gdx.app.log("SlidingTable)", "--tigey:" + section);
                 }
             });
-            Stack stack = new Stack();
-            stack.addActor(imagebutton);
-            stack.addActor(imagebutton1);
-            stack.addActor(imagebutton2);
-            imagebutton.setUserObject(stack);
+            stack.addActor(imageButton1);
+
+            ImageButton imageButton2 = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("button/on.png"))));
+            imageButton2.setVisible(false);
+            imageButton2.setUserObject("on");
+            imageButton2.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    super.clicked(event, x, y);
+                    ImageButton imageButton2 = (ImageButton)event.getListenerActor();
+                    Stack stack = (Stack)imageButton2.getParent();
+                    int section = (int)stack.getParent().getUserObject();
+                    ImageButton imageButton1 = (ImageButton)stack.getChild(0);
+                    ImageButton imageButton3 = (ImageButton)stack.getChild(2);
+                    Gdx.app.log("SlidingTable)", "--imageButton1:" + imageButton1);
+                    Gdx.app.log("SlidingTable)", "--imageButton3:" + imageButton3);
+                    imageButton2.setVisible(false);
+                    imageButton3.setVisible(true);
+                }
+            });
+            stack.addActor(imageButton2);
+
+            ImageButton imageButton3 = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("button/off.png"))));
+            imageButton3.setVisible(false);
+            imageButton3.setUserObject("off");
+            imageButton3.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    super.clicked(event, x, y);
+                    ImageButton imageButton3 = (ImageButton)event.getListenerActor();
+                    Stack stack = (Stack)imageButton3.getParent();
+                    int section = (int)stack.getParent().getUserObject();
+                    ImageButton imageButton1 = (ImageButton)stack.getChild(0);
+                    ImageButton imageButton2 = (ImageButton)stack.getChild(1);
+                    Gdx.app.log("SlidingTable)", "--imageButton1:" + imageButton1);
+                    Gdx.app.log("SlidingTable)", "--imageButton2:" + imageButton2);
+                    imageButton3.setVisible(false);
+                    imageButton1.setVisible(true);
+                }
+            });
+            stack.addActor(imageButton3);
+
             sectionTable.add(stack).padRight(30);
             addActor(sectionTable);
         }
+    }
 
-    }
     public void skinWrite() {
-        skinsSetting.writeString(String.valueOf(skin1),false);
-        skinsSetting.writeString("\n" + skin2,true);
-        skinsSetting.writeString("\n" + skin3,true);
-        skinsSetting.writeString("\n" + skin4,true);
-        skinsSetting.writeString("\n" + skin5,true);
-        skinsSetting.writeString("\n" + skin6,true);
+//        skinsSetting.writeString(String.valueOf(skin1),false);
+//        skinsSetting.writeString("\n" + skin2,true);
+//        skinsSetting.writeString("\n" + skin3,true);
+//        skinsSetting.writeString("\n" + skin4,true);
+//        skinsSetting.writeString("\n" + skin5,true);
+//        skinsSetting.writeString("\n" + skin6,true);
+        skinsSetting.delete();
+        for (int integer : skinsBuyActivOrNot) {
+            skinsSetting.writeString(String.valueOf(integer), true);
+        }
     }
+
     public void skinRead(){
         String line = skinsSetting.readString();
         String lines[] = line.split("\n");
-        skin1 = Boolean.parseBoolean(lines[0]);
+        for (String skinStage : lines) {
+            skinsBuyActivOrNot.add(Integer.parseInt(skinStage));
+        }
     }
 
     public void score(){
@@ -196,11 +229,7 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
         if (lines.length == 2) {
             coin = Integer.parseInt(lines[1]);
         }
-
     }
-
-
-
 
     boolean huinua = false;
     @Override
