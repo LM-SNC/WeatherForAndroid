@@ -32,6 +32,7 @@ public class Shop implements Screen {
     ImageButton sound;
     Label coinLabel;
     FileHandle score;
+    FileHandle skinsSetting;
     ImageButton exitstore;
     ImageButton back1;
     Image verh;
@@ -68,8 +69,7 @@ public class Shop implements Screen {
         forVerh.setFillParent(true);
 
 
-
-        coinLabel = new Label("Coin: " + coin,skin);
+        coinLabel = new Label("Coin: " + coin, skin);
         back1 = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("back1.png"))));
         backGround = new Image(new TextureRegionDrawable(new TextureRegion(new Texture("bstore.jpg"))));
         skins = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("skins.png"))));
@@ -84,41 +84,38 @@ public class Shop implements Screen {
         //stage.setDebugAll(true);
         backGround.setFillParent(true);
         stage.addActor(backGround);
-       secondTable.add(coinLabel).expand().align(Align.topLeft).row();
+        secondTable.add(coinLabel).expand().align(Align.topLeft).row();
         firstTable.add(skins).align(Align.left).padRight(20).padBottom(20);
         rootTable = new Table();
         rootTable.setFillParent(true);
-        stage.addActor(rootTable);
-        slidingTable = new SlidingTable();
+        slidingTable = new SlidingTable(skin);
         rootTable.add(slidingTable).expand().fill().row();
+        stage.addActor(rootTable);
         slidingTable.setVisible(false);
         skins.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                boolean swithSkins;
+                super.clicked(event, x, y);                                        //
+                boolean swithSkins;                                                 //
                 swithSkins = true;
-                    Gdx.app.log("Shop::Shop()", "swithSkins);" + swithSkins);
-                    sound.setVisible(!swithSkins);
-                    aby.setVisible(!swithSkins);
-                    cnbutton.setVisible(!swithSkins);
-                    exitstore.setVisible(!swithSkins);
-                    skins.setVisible(!swithSkins);
+                Gdx.app.log("Shop::Shop()", "swithSkins);" + swithSkins);
+                sound.setVisible(!swithSkins);
+                aby.setVisible(!swithSkins);
+                cnbutton.setVisible(!swithSkins);
+                exitstore.setVisible(!swithSkins);
+                skins.setVisible(!swithSkins);
                 if (height > 480 && width > 800) {
                     back.setVisible(swithSkins);
                     back1.setVisible(false);
-                }
-                else {
+                } else {
                     back1.setVisible(swithSkins);
                     guba.setVisible(swithSkins);
                     verh.setVisible(swithSkins);
                 }
-                    slidingTable.setVisible(swithSkins);
+                slidingTable.setVisible(swithSkins);
 
 
             }
-
-
 
 
         });
@@ -138,15 +135,12 @@ public class Shop implements Screen {
                 if (height > 480 && width > 800) {
                     back.setVisible(swithSkins);
                     back1.setVisible(false);
-                }
-                else {
+                } else {
                     back1.setVisible(swithSkins);
                 }
 
 
             }
-
-
 
 
         });
@@ -167,15 +161,12 @@ public class Shop implements Screen {
                 if (height > 480 && width > 800) {
                     back.setVisible(swithSkins);
                     back1.setVisible(false);
-                }
-                else {
+                } else {
                     back1.setVisible(swithSkins);
                 }
 
 
             }
-
-
 
 
         });
@@ -195,15 +186,12 @@ public class Shop implements Screen {
                 if (height > 480 && width > 800) {
                     back.setVisible(swithSkins);
                     back1.setVisible(false);
-                }
-                else {
+                } else {
                     back1.setVisible(swithSkins);
                 }
 
 
             }
-
-
 
 
         });
@@ -216,13 +204,14 @@ public class Shop implements Screen {
         stage.addActor(thirdTable);
 //        back.getImage().setSize(50, 100);
         secondTable.add(exitstore).expand().align(Align.bottom);
-        TableForGuba.add(guba).expand().align(Align.bottom);
-        forVerh.add(verh).expand().align(Align.top);
+       // TableForGuba.add(guba).expand().align(Align.bottom);
+
+        //forVerh.add(verh).expand().align(Align.top);
         thirdTable.add(back).expand().align(Align.bottomRight);
         forBck1.add(back1).expand().align(Align.bottomRight);
         guba.setVisible(false);
         verh.setVisible(false);
-       back1.setVisible(false);
+        back1.setVisible(false);
 //        back.align(Align.right);
         back.setVisible(false);
         back.addListener(new ClickListener() {
@@ -230,15 +219,15 @@ public class Shop implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 boolean swith;
-               swith = true;
-                    back.setVisible(swith);
-                    back.setVisible(!swith);
-                    aby.setVisible(swith);
-                    sound.setVisible(swith);
-                    skins.setVisible(swith);
-                    cnbutton.setVisible(swith);
-                    exitstore.setVisible(swith);
-                    slidingTable.setVisible(!swith);
+                swith = true;
+                back.setVisible(swith);
+                back.setVisible(!swith);
+                aby.setVisible(swith);
+                sound.setVisible(swith);
+                skins.setVisible(swith);
+                cnbutton.setVisible(swith);
+                exitstore.setVisible(swith);
+                slidingTable.setVisible(!swith);
 
 
             }
@@ -275,6 +264,10 @@ public class Shop implements Screen {
         score = Gdx.files.local("score.txt");
         score();
 
+        skinsSetting = Gdx.files.local("skinsSetting.txt");
+        if (!skinsSetting.exists()){
+            skinsSetting.writeString("0",false);
+        }
 
 
     }
@@ -282,10 +275,11 @@ public class Shop implements Screen {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(stage);
+//        Gdx.input.setInputProcessor(stage);
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
-        inputMultiplexer.addProcessor(new GestureDetector(slidingTable));
         inputMultiplexer.addProcessor(stage);
+//        inputMultiplexer.addProcessor(slidingTable);
+        inputMultiplexer.addProcessor(new GestureDetector(slidingTable));
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
@@ -327,6 +321,7 @@ public class Shop implements Screen {
     public void dispose() {
 
     }
+
     public void score() {
         Gdx.app.log("GameScreen::score()", "--");
         String line = score.readString();
@@ -337,6 +332,7 @@ public class Shop implements Screen {
             Gdx.app.log("GameScreen::score()", "lines:" + lines);
         }
     }
+
     private void inputHandler(float delta) {
 //        Gdx.app.log("HelpMenuScreen::inputHandler(" + delta + ");");
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK) || Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {

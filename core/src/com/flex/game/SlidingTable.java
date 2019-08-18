@@ -4,16 +4,25 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 
 public class SlidingTable extends Table implements GestureDetector.GestureListener {
@@ -28,13 +37,25 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
     // Направление движения секций
     private int transmission   = 0;
     private float stopSection  = 0;
+    boolean skin1;
+    boolean skin2;
+    boolean skin3;
+    boolean skin4;
+    FileHandle score;
+    int coin;
+    boolean skin5;
+    boolean skin6;
+    FileHandle skinsSetting;
     private float speed        = 2500;
-
+    SpriteBatch batch;
     private int currentSection = 1;
     // Скорость пиксель/секунда после которой считаем, что пользователь хочет перейти к следующей секции
     private float flingSpeed   = 100;
     private float overscrollDistance = 50;
     private int ImageHeight;
+    TextButton flexText;
+   TextButton.TextButtonStyle tbs;
+   Stage stage;
 
     private boolean isPanning;
     //    private Rectangle cullingArea = new Rectangle();
@@ -44,9 +65,11 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
 
     private int LINE_MENU_ITEM_COUNT = 6;
 
-    public SlidingTable() {
+    public SlidingTable(Skin skin) {
         Gdx.app.log("SlidingTable::SlidingTable()", "-- ");
-
+        stage = new Stage();
+        skinsSetting = Gdx.files.local("skinsSetting.txt");
+        score = Gdx.files.local("score.txt");
         helpImages = new Array<Image>();
         FileHandle imagesDir = Gdx.files.internal("hui");
         FileHandle[] fileHandles = imagesDir.list();
@@ -55,6 +78,7 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
                 Image image = new Image(new Texture(fileHandle));
 //                image.setFillParent(true);
                 helpImages.add(image);
+
             }
         }
 
@@ -62,16 +86,121 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
         naviActive  = new Texture(Gdx.files.internal("naviActive.png"));
 
         for(int section = 0; section < helpImages.size; section++) {
-            ImageButton imagebutton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("button/button.png"))));
-            Image image = helpImages.get(section);
             Table sectionTable = new Table();
-            sectionTable.add(image).center().expand();
+            Image image = helpImages.get(section);
+
+            sectionTable.add(image).padRight(30);
+            if(section == 0){
+                Label labelziro = new Label("Text", skin);
+                sectionTable.add(labelziro).padLeft(30).row();
+            }
+            if(section == 1){
+                Label labelziro = new Label("Text", skin);
+                sectionTable.add(labelziro).padLeft(30).row();
+            }
+            if(section == 2){
+                Label labelziro = new Label("Text", skin);
+                sectionTable.add(labelziro).padLeft(30).row();
+            }
+            if(section == 3){
+                Label labelziro = new Label("Text", skin);
+                sectionTable.add(labelziro).padLeft(30).row();
+            }
+            if(section == 4){
+                Label labelziro = new Label("Text", skin);
+                sectionTable.add(labelziro).padLeft(30).row();
+            }
+            if(section == 5){
+                Label labelziro = new Label("Text", skin);
+                sectionTable.add(labelziro).padLeft(30).row();
+            }
+            final ImageButton imagebutton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("button/button.png"))));
+            imagebutton.setUserObject(section);
+            imagebutton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    super.clicked(event, x, y);
+                    int section = (int)event.getListenerActor().getUserObject();
+                    skinRead();
+                    if(section == 0){
+
+                        if(skin1){
+                            System.out.print("Скин уже приобретен!");
+                            score();
+                            System.out.print(coin);
+                            imagebutton.setVisible(false);
+                        }else {
+                            skin1 = true;
+                            skinWrite();
+                        }
+                    }
+                    else if(section == 1){
+                        if(skin2){
+                            System.out.print("Скин уже приобретен!");
+                        }
+                        else {
+                            skin2 = true;
+                        }
+
+                    }
+                    else if(section == 2){
+
+
+                    }
+                    else if(section == 3){
+
+
+                    }
+                    else if(section == 4){
+
+
+                    }
+                    else if (section == 5){
+
+                        System.out.print("Дима гей");
+                    }
+
+
+
+                    Gdx.app.log("SlidingTable)", "--tigey:" + section);
+
+                }
+            });
             Stack stack = new Stack();
-            stack.add(sectionTable);
-            stack.add(imagebutton);
-            addActor(stack);
+            stack.addActor(imagebutton);
+            stack.addActor(imagebutton1);
+            stack.addActor(imagebutton2);
+            imagebutton.setUserObject(stack);
+            sectionTable.add(stack).padRight(30);
+            addActor(sectionTable);
         }
+
     }
+    public void skinWrite() {
+        skinsSetting.writeString(String.valueOf(skin1),false);
+        skinsSetting.writeString("\n" + skin2,true);
+        skinsSetting.writeString("\n" + skin3,true);
+        skinsSetting.writeString("\n" + skin4,true);
+        skinsSetting.writeString("\n" + skin5,true);
+        skinsSetting.writeString("\n" + skin6,true);
+    }
+    public void skinRead(){
+        String line = skinsSetting.readString();
+        String lines[] = line.split("\n");
+        skin1 = Boolean.parseBoolean(lines[0]);
+    }
+
+    public void score(){
+        String line = score.readString();
+        String lines[] = line.split("\n");
+        if (lines.length == 2) {
+            coin = Integer.parseInt(lines[1]);
+        }
+
+    }
+
+
+
 
     boolean huinua = false;
     @Override
@@ -80,6 +209,7 @@ public class SlidingTable extends Table implements GestureDetector.GestureListen
         float border = Gdx.graphics.getHeight()/3;
         Gdx.app.log("SlidingTable::isPanning()", "-- border:" + border + " getHeight:" + Gdx.graphics.getHeight() + " (Gdx.graphics.getHeight() - border):" + (Gdx.graphics.getHeight() - border));
         if (y > border && y < (Gdx.graphics.getHeight() - border)) {
+
             if (amountX < -overscrollDistance) {
                 return false;
             }
